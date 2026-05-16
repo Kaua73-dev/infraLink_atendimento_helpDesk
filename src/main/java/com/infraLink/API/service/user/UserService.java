@@ -1,12 +1,19 @@
 package com.infraLink.API.service.user;
 
 
+import com.infraLink.API.config.TokenConfig;
+import com.infraLink.API.dto.request.user.UserLoginRequest;
 import com.infraLink.API.dto.request.user.UserRegisterRequest;
+import com.infraLink.API.dto.response.user.UserLoginResponse;
 import com.infraLink.API.dto.response.user.UserRegisterResponse;
 import com.infraLink.API.exception.user.UserAlreadyExistException;
+import com.infraLink.API.exception.user.UserNotFoundException;
 import com.infraLink.API.model.entity.user.User;
 import com.infraLink.API.model.repository.user.UserRepository;
 import com.infraLink.API.model.roles.user.UserEnum;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +24,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final TokenConfig tokenConfig;
 
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenConfig tokenConfig) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenConfig = tokenConfig;
     }
 
 
@@ -48,5 +59,21 @@ public class UserService {
               user.getCreateAt()
         );
     }
+
+
+    public UserLoginResponse login(UserLoginRequest request){
+        if(userRepository.findByEmail(request.email()).isEmpty()){
+            throw new UserNotFoundException();
+        }
+
+        UsernamePasswordAuthenticationToken userAndPass = new UsernamePasswordAuthenticationToken(request.email(), request.password());
+        Authentication authentication = authenticationManager.authenticate(userAndPass);
+
+        User user = (User) authentication.getPrincipal();
+        String token = tokenConfig.generateToken(user);
+        return new UserLoginResponse(token);
+
+    }
+
 
 }
