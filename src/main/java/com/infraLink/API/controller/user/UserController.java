@@ -1,7 +1,11 @@
 package com.infraLink.API.controller.user;
 
 
+import com.infraLink.API.dto.request.user.UserRegisterRequest;
+import com.infraLink.API.dto.response.user.UserRegisterResponse;
 import com.infraLink.API.service.user.UserService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +20,9 @@ public class UserController {
     }
 
 
-
+    @PostMapping("/register")
+    public UserRegisterResponse register(@RequestBody UserRegisterRequest request){
+        return userService.register(request);
+    }
 
 }

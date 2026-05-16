@@ -36,7 +36,7 @@ public class User implements UserDetails {
     @Column(length = 250)
     private String password;
 
-    private LocalDateTime createAt = LocalDateTime.now();
+    private LocalDateTime createAt;
 
     @Enumerated(EnumType.STRING)
     private UserEnum userEnum;
