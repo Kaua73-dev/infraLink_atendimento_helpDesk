@@ -27,8 +27,8 @@ public class TicketController {
     }
 
     @PostMapping("/create")
-    public TicketCreateResponse createTicket(@RequestBody TicketRequest request, @NonNull String email, @NonNull QueueTypeEnum queueTypeEnum){
-        return ticketService.createTicket(request, email, queueTypeEnum);
+    public TicketCreateResponse createTicket(@RequestBody TicketRequest request){
+        return ticketService.createTicket(request);
     }
 
 

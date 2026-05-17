@@ -1,6 +1,9 @@
 package com.infraLink.API.dto.request.ticket;
 
-public record TicketRequest(String description) {
+import com.infraLink.API.model.roles.queue.QueueTypeEnum;
+
+public record TicketRequest(String description, String email, QueueTypeEnum queueTypeEnum
+) {
 
 
 

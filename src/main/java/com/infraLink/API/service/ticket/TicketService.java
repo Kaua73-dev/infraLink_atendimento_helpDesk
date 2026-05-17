@@ -1,6 +1,7 @@
 package com.infraLink.API.service.ticket;
 
 
+import com.infraLink.API.auth.AuthVerifyService;
 import com.infraLink.API.dto.request.ticket.TicketRequest;
 import com.infraLink.API.dto.response.ticket.TicketCreateResponse;
 import com.infraLink.API.exception.ticket.TicketAlreadyExistException;
@@ -29,32 +30,39 @@ public class TicketService {
     private final QueueDoubtFactory queueDoubtFactory;
     private final QueueInstabilityFactory queueInstabilityFactory;
     private final QueueNoServiceFactory queueNoServiceFactory;
+    private final AuthVerifyService authVerifyService;
 
 
-    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, QueueService queueService, QueueDoubtFactory queueDoubtFactory, QueueInstabilityFactory queueInstabilityFactory, QueueNoServiceFactory queueNoServiceFactory) {
+    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, QueueService queueService, QueueDoubtFactory queueDoubtFactory, QueueInstabilityFactory queueInstabilityFactory, QueueNoServiceFactory queueNoServiceFactory, AuthVerifyService authVerifyService) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
         this.queueService = queueService;
         this.queueDoubtFactory = queueDoubtFactory;
         this.queueInstabilityFactory = queueInstabilityFactory;
         this.queueNoServiceFactory = queueNoServiceFactory;
+        this.authVerifyService = authVerifyService;
     }
 
 
     // apenas Client
-    public TicketCreateResponse createTicket(TicketRequest request, String email, QueueTypeEnum queueTypeEnum){
+    public TicketCreateResponse createTicket(TicketRequest request){
 
-        User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        User user = authVerifyService.getAuthenticate();
+
+        if(userRepository.findByEmail(user.getEmail()).isEmpty()){
+            throw new UserNotFoundException();
+        }
 
         if(ticketRepository.findByClient(user).isPresent()){
             throw new TicketAlreadyExistException();
         }
 
-        Queue queue = switch (queueTypeEnum) {
+        Queue queue = switch (request.queueTypeEnum()) {
             case DOUBT -> queueDoubtFactory.createQueue();
             case INSTABILITY -> queueInstabilityFactory.createQueue();
             case NO_SERVICE -> queueNoServiceFactory.createQueue();
         };
+
         queueService.addQueue(queue);
 
         Ticket ticket = new Ticket();
@@ -70,7 +78,6 @@ public class TicketService {
                 ticket.getCreatedAt(),
                 ticket.getTicketStatusEnum()
         );
-
 
     }
 
