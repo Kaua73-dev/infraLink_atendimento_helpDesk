@@ -48,7 +48,7 @@ public class UserService {
         user.setCpf(request.cpf());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setCreateAt(LocalDateTime.now());
-        user.setUserEnum(UserEnum.USER);
+        user.setUserEnum(UserEnum.CLIENT);
 
         userRepository.save(user);
 
@@ -59,7 +59,6 @@ public class UserService {
               user.getCreateAt()
         );
     }
-
 
     public UserLoginResponse login(UserLoginRequest request){
         if(userRepository.findByEmail(request.email()).isEmpty()){
@@ -74,6 +73,7 @@ public class UserService {
         return new UserLoginResponse(token);
 
     }
+
 
 
 }
