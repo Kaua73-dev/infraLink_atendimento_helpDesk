@@ -21,6 +21,7 @@ import com.infraLink.API.service.queue.QueueService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TicketService {
@@ -43,6 +44,15 @@ public class TicketService {
         this.queueNoServiceFactory = queueNoServiceFactory;
         this.authVerifyService = authVerifyService;
     }
+
+    private TicketCreateResponse toResponse(Ticket ticket){
+        return new TicketCreateResponse(
+                new UserTicketResponse(ticket.getClient().getName()),
+                ticket.getCreatedAt(),
+                ticket.getTicketStatusEnum()
+        );
+    }
+
 
 
     // apenas Client
@@ -72,15 +82,22 @@ public class TicketService {
         ticket.setTicketStatusEnum(TicketStatusEnum.PENDING);
         ticket.setCreatedAt(LocalDateTime.now());
 
-        ticketRepository.save(ticket);
+        Ticket ticketSaved = ticketRepository.save(ticket);
 
-        return new TicketCreateResponse(
-                new UserTicketResponse(ticket.getClient().getName()),
-                ticket.getCreatedAt(),
-                ticket.getTicketStatusEnum()
-        );
+        return this.toResponse(ticketSaved);
 
     }
+
+
+    public List<TicketCreateResponse> getAllTickets(){
+        return ticketRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+
 
 
 }
