@@ -35,8 +35,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 
+                        // user
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+
+                        // ticket
+                        .requestMatchers(HttpMethod.POST, "/ticket/create").hasRole("CLIENT")
+
 
 
 

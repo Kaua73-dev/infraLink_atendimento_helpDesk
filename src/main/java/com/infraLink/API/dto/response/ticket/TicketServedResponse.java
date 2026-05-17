@@ -5,5 +5,5 @@ import com.infraLink.API.model.roles.ticket.TicketStatusEnum;
 
 import java.time.LocalDateTime;
 
-public record TicketCreateResponse(User client, LocalDateTime createdAt, TicketStatusEnum ticketStatusEnum) {
+public record TicketServedResponse(User client, User attendant, LocalDateTime createdAt, TicketStatusEnum ticketStatusEnum) {
 }
