@@ -4,6 +4,7 @@ package com.infraLink.API.service.ticket;
 import com.infraLink.API.auth.AuthVerifyService;
 import com.infraLink.API.dto.request.ticket.TicketRequest;
 import com.infraLink.API.dto.response.ticket.TicketCreateResponse;
+import com.infraLink.API.dto.response.user.UserTicketResponse;
 import com.infraLink.API.exception.ticket.TicketAlreadyExistException;
 import com.infraLink.API.exception.user.UserNotFoundException;
 import com.infraLink.API.model.entity.queue.Queue;
@@ -74,7 +75,7 @@ public class TicketService {
         ticketRepository.save(ticket);
 
         return new TicketCreateResponse(
-                ticket.getClient(),
+                new UserTicketResponse(ticket.getClient().getName()),
                 ticket.getCreatedAt(),
                 ticket.getTicketStatusEnum()
         );

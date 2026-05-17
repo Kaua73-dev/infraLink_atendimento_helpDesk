@@ -1,9 +1,10 @@
 package com.infraLink.API.dto.response.ticket;
 
+import com.infraLink.API.dto.response.user.UserTicketResponse;
 import com.infraLink.API.model.entity.user.User;
 import com.infraLink.API.model.roles.ticket.TicketStatusEnum;
 
 import java.time.LocalDateTime;
 
-public record TicketCreateResponse(User client, LocalDateTime createdAt, TicketStatusEnum ticketStatusEnum) {
+public record TicketCreateResponse(UserTicketResponse client, LocalDateTime createdAt, TicketStatusEnum ticketStatusEnum) {
 }
