@@ -46,7 +46,7 @@ public class User implements UserDetails {
     @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
-                new SimpleGrantedAuthority(userEnum.name())
+                new SimpleGrantedAuthority("ROLE_" + userEnum.name())
         );
     }
 
