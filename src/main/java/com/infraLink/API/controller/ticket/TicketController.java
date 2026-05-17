@@ -11,10 +11,9 @@ import com.infraLink.API.model.roles.queue.QueueTypeEnum;
 import com.infraLink.API.service.queue.QueueService;
 import com.infraLink.API.service.ticket.TicketService;
 import lombok.NonNull;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ticket")
@@ -30,6 +29,12 @@ public class TicketController {
     public TicketCreateResponse createTicket(@RequestBody TicketRequest request){
         return ticketService.createTicket(request);
     }
+
+    @GetMapping()
+    public List<TicketCreateResponse> getAllTickets(){
+        return ticketService.getAllTickets();
+    }
+
 
 
 
