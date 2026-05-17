@@ -19,6 +19,9 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(length = 500)
+    private String description;
+
     @ManyToOne
     private User client;
 
