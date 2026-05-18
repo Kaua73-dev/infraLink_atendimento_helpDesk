@@ -60,7 +60,6 @@ public class TicketService {
 
 
 
-    // apenas Client
     public TicketCreateResponse createTicket(TicketRequest request){
 
         User user = authVerifyService.getAuthenticate();
@@ -94,7 +93,7 @@ public class TicketService {
 
     }
 
-    // apenas atendente
+
     public List<TicketCreateResponse> getAllTickets(){
         return ticketRepository.findAll()
                 .stream()
@@ -102,7 +101,7 @@ public class TicketService {
                 .toList();
     }
 
-    // apenas atendente
+
     public TicketServedResponse attendTicket(){
         User attendant = authVerifyService.getAuthenticate();
 

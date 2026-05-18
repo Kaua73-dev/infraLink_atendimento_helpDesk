@@ -42,7 +42,7 @@ public class SecurityConfig {
                         // ticket
                         .requestMatchers(HttpMethod.POST, "/ticket/create").hasRole("CLIENT")
                         .requestMatchers(HttpMethod.GET, "/ticket").hasAnyRole("ADMIN", "ATTENDANT")
-
+                        .requestMatchers(HttpMethod.POST, "/ticket/attend").hasAnyRole("ADMIN", "ATTENDANT")
 
 
 

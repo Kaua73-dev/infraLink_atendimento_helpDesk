@@ -3,6 +3,7 @@ package com.infraLink.API.controller.ticket;
 
 import com.infraLink.API.dto.request.ticket.TicketRequest;
 import com.infraLink.API.dto.response.ticket.TicketCreateResponse;
+import com.infraLink.API.dto.response.ticket.TicketServedResponse;
 import com.infraLink.API.model.entity.queue.Queue;
 import com.infraLink.API.model.factory.implementations.QueueDoubtFactory;
 import com.infraLink.API.model.factory.implementations.QueueInstabilityFactory;
@@ -33,6 +34,11 @@ public class TicketController {
     @GetMapping()
     public List<TicketCreateResponse> getAllTickets(){
         return ticketService.getAllTickets();
+    }
+
+    @PostMapping("/attend")
+    public TicketServedResponse attendTicket(){
+        return ticketService.attendTicket();
     }
 
 
