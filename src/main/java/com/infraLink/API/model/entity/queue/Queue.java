@@ -1,5 +1,6 @@
 package com.infraLink.API.model.entity.queue;
 
+import com.infraLink.API.model.entity.ticket.Ticket;
 import com.infraLink.API.model.entity.user.User;
 import com.infraLink.API.model.roles.queue.QueueTypeEnum;
 import jakarta.persistence.*;
@@ -28,6 +29,10 @@ public class Queue {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "ticket_id")
+    private Ticket ticket;
 
 
 }

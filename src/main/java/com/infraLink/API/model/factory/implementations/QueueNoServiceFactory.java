@@ -2,6 +2,7 @@ package com.infraLink.API.model.factory.implementations;
 
 
 import com.infraLink.API.model.entity.queue.Queue;
+import com.infraLink.API.model.entity.ticket.Ticket;
 import com.infraLink.API.model.factory.contracts.QueueFactory;
 import com.infraLink.API.model.repository.queue.QueueRepository;
 import com.infraLink.API.model.roles.queue.QueueTypeEnum;
@@ -20,11 +21,12 @@ public class QueueNoServiceFactory implements QueueFactory {
 
 
     @Override
-    public Queue createQueue() {
+    public Queue createQueue(Ticket ticket) {
 
         Queue queue = new Queue();
         queue.setCreateAt(LocalDateTime.now());
         queue.setQueueTypeEnum(QueueTypeEnum.NO_SERVICE);
+        queue.setTicket(ticket);
         queue.setPriority(1);
 
         return queueRepository.save(queue);
