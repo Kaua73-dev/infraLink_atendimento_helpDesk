@@ -69,7 +69,7 @@ public class TicketService {
             throw new UserNotFoundException();
         }
 
-        if(ticketRepository.findByClient(user).isPresent()){
+        if(ticketRepository.findByClientAndTicketStatusEnum(user, TicketStatusEnum.PENDING).isPresent()){
             throw new TicketAlreadyExistException();
         }
 
@@ -102,9 +102,8 @@ public class TicketService {
                 .toList();
     }
 
-
+    // apenas atendente
     public TicketServedResponse attendTicket(){
-
         User attendant = authVerifyService.getAuthenticate();
 
         Queue queue = queueService.callNextQueue();
@@ -114,9 +113,6 @@ public class TicketService {
         if(ticket.getTicketStatusEnum().equals(TicketStatusEnum.IN_SERVICE) || ticket.getTicketStatusEnum().equals(TicketStatusEnum.FINISHED)){
             throw new TicketUnavailableException();
         }
-
-
-
 
         ticket.setTicketStatusEnum(TicketStatusEnum.IN_SERVICE);
         ticket.setAttendant(attendant);

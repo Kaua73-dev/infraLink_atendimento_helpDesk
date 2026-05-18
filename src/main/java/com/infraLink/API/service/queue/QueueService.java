@@ -1,10 +1,11 @@
 package com.infraLink.API.service.queue;
 
 
-import com.infraLink.API.exception.queue.QueueIsNotAvaiableException;
-import com.infraLink.API.exception.queue.QueueThereAreNotNextException;
+
+import com.infraLink.API.exception.queue.QueueIsNotAvailableException;
 import com.infraLink.API.model.entity.queue.Queue;
 import com.infraLink.API.model.repository.queue.QueueRepository;
+import com.infraLink.API.model.roles.ticket.TicketStatusEnum;
 import org.springframework.stereotype.Service;
 
 
@@ -20,35 +21,19 @@ public class QueueService {
         this.queueRepository = queueRepository;
     }
 
-    private final PriorityQueue<Queue> queue =
-            new PriorityQueue<>(
-                    Comparator.comparingInt(Queue::getPriority)
-            );
-
-    private Queue current;
-
 
     public Queue callNextQueue(){
-        if(current != null){
-           throw new QueueThereAreNotNextException();
-        }
+       return queueRepository.findFirstByTicket_TicketStatusEnumOrderByPriorityAscCreateAtAsc(
+               TicketStatusEnum.PENDING
+       ).orElseThrow(QueueIsNotAvailableException::new);
 
-        current = queue.poll();
-        return current;
+       // gera query no banco, fica salvo no banco e não localmente
+
     }
 
-    public void finishQueue(){
-        if(current == null){
-            throw new QueueIsNotAvaiableException();
-        }
-
-        current = null;
+    public void addQueue(Queue queue){
+       queueRepository.save(queue);
     }
-
-    public void addQueue(Queue ticket){
-         queue.add(ticket);
-    }
-
 
 
 
