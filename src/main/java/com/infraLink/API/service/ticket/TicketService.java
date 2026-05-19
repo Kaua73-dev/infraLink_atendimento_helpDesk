@@ -5,12 +5,16 @@ import com.infraLink.API.auth.AuthVerifyService;
 import com.infraLink.API.dto.request.ticket.TicketAttendRequest;
 import com.infraLink.API.dto.request.ticket.TicketRequest;
 import com.infraLink.API.dto.response.ticket.TicketCreateResponse;
+import com.infraLink.API.dto.response.ticket.TicketFinishedResponse;
 import com.infraLink.API.dto.response.ticket.TicketServedResponse;
 import com.infraLink.API.dto.response.user.UserClientAndAttendTicketResponse;
 import com.infraLink.API.dto.response.user.UserClientTicketResponse;
+import com.infraLink.API.dto.response.webSocket.ChatClosedResponse;
 import com.infraLink.API.exception.ticket.TicketAlreadyExistException;
+import com.infraLink.API.exception.ticket.TicketChatWebSocketUnavailableException;
 import com.infraLink.API.exception.ticket.TicketNotFoundException;
 import com.infraLink.API.exception.ticket.TicketUnavailableException;
+import com.infraLink.API.exception.user.UserNotAuthorizedException;
 import com.infraLink.API.exception.user.UserNotFoundException;
 import com.infraLink.API.model.entity.queue.Queue;
 import com.infraLink.API.model.entity.ticket.Ticket;
@@ -18,10 +22,12 @@ import com.infraLink.API.model.entity.user.User;
 import com.infraLink.API.model.factory.implementations.QueueDoubtFactory;
 import com.infraLink.API.model.factory.implementations.QueueInstabilityFactory;
 import com.infraLink.API.model.factory.implementations.QueueNoServiceFactory;
+import com.infraLink.API.model.repository.queue.QueueRepository;
 import com.infraLink.API.model.repository.ticket.TicketRepository;
 import com.infraLink.API.model.repository.user.UserRepository;
 import com.infraLink.API.model.roles.ticket.TicketStatusEnum;
 import com.infraLink.API.service.queue.QueueService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,10 +43,11 @@ public class TicketService {
     private final QueueInstabilityFactory queueInstabilityFactory;
     private final QueueNoServiceFactory queueNoServiceFactory;
     private final AuthVerifyService authVerifyService;
+    private final QueueRepository queueRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
 
-
-    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, QueueService queueService, QueueDoubtFactory queueDoubtFactory, QueueInstabilityFactory queueInstabilityFactory, QueueNoServiceFactory queueNoServiceFactory, AuthVerifyService authVerifyService) {
+    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, QueueService queueService, QueueDoubtFactory queueDoubtFactory, QueueInstabilityFactory queueInstabilityFactory, QueueNoServiceFactory queueNoServiceFactory, AuthVerifyService authVerifyService, QueueRepository queueRepository, SimpMessagingTemplate messagingTemplate) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
         this.queueService = queueService;
@@ -48,6 +55,8 @@ public class TicketService {
         this.queueInstabilityFactory = queueInstabilityFactory;
         this.queueNoServiceFactory = queueNoServiceFactory;
         this.authVerifyService = authVerifyService;
+        this.queueRepository = queueRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     private TicketCreateResponse toResponse(Ticket ticket){
@@ -117,6 +126,9 @@ public class TicketService {
         ticket.setAttendant(attendant);
         ticketRepository.save(ticket);
 
+        queueRepository.deleteByTicket(ticket);
+
+
         return new TicketServedResponse(
                 new UserClientAndAttendTicketResponse(ticket.getAttendant().getName(), ticket.getClient().getName()),
                 ticket.getCreatedAt(),
@@ -124,8 +136,38 @@ public class TicketService {
         );
     }
 
-    public void finishService(TicketAttendRequest request){
+    public TicketFinishedResponse finishService(TicketAttendRequest request){
+        User user = authVerifyService.getAuthenticate();
 
+        Ticket ticket = ticketRepository.findById(request.ticketId())
+                .orElseThrow(TicketNotFoundException::new);
+
+        if(!ticket.getAttendant().equals(user)){
+            throw new UserNotAuthorizedException();
+        }
+
+        if(!ticket.getTicketStatusEnum().equals(TicketStatusEnum.IN_SERVICE)){
+            throw new TicketChatWebSocketUnavailableException();
+        }
+
+        ticket.setTicketStatusEnum(TicketStatusEnum.FINISHED);
+        ticket.setFinishedAt(LocalDateTime.now());
+        ticketRepository.save(ticket);
+
+        messagingTemplate.convertAndSend(
+                "/topic/ticket/" + ticket.getId(),
+                new ChatClosedResponse(
+                        "Service closed"
+                )
+        );
+
+        return new TicketFinishedResponse(
+                new UserClientAndAttendTicketResponse(ticket.getAttendant().getName(), ticket.getClient().getName()),
+                ticket.getCreatedAt(),
+                ticket.getFinishedAt(),
+                ticket.getTicketStatusEnum()
+
+                );
     }
 
 

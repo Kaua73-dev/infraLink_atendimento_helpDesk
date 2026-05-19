@@ -4,7 +4,7 @@ package com.infraLink.API.service.webSocket;
 import com.infraLink.API.auth.AuthVerifyService;
 import com.infraLink.API.dto.request.webSocket.WebSocketSendMessageRequest;
 import com.infraLink.API.dto.response.webSocket.WebSocketSendMessageResponse;
-import com.infraLink.API.exception.ticket.TicketChatWebSocketUnavaibleException;
+import com.infraLink.API.exception.ticket.TicketChatWebSocketUnavailableException;
 import com.infraLink.API.exception.ticket.TicketNotFoundException;
 import com.infraLink.API.exception.user.UserNotAuthorizedException;
 import com.infraLink.API.model.entity.ticket.Ticket;
@@ -37,15 +37,14 @@ public class WebSocketService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    private void sendToTicketTopic(Integer ticketId, WebSocketSendMessageResponse response){
+    private void sendToTicketTopic(Integer ticketId){
         messagingTemplate.convertAndSend(
-                "/topic/ticket/" + ticketId,
-                response
+                "/topic/ticket/" + ticketId
         );
     }
 
 
-    public WebSocketSendMessageResponse sendMessage(WebSocketSendMessageRequest request){
+    public void sendMessage(WebSocketSendMessageRequest request){
 
         User sender = authVerifyService.getAuthenticate();
 
@@ -57,7 +56,7 @@ public class WebSocketService {
         }
 
         if(!ticket.getTicketStatusEnum().equals(TicketStatusEnum.IN_SERVICE)){
-            throw new TicketChatWebSocketUnavaibleException();
+            throw new TicketChatWebSocketUnavailableException();
         }
 
         WebSocket webSocket = new WebSocket();
@@ -68,16 +67,10 @@ public class WebSocketService {
 
         webSocketRepository.save(webSocket);
 
-        WebSocketSendMessageResponse response =
-                new WebSocketSendMessageResponse(
-                        sender.getName(),
-                        webSocket.getLocalDateTime(),
-                        webSocket.getContent()
-                );
 
-        sendToTicketTopic(ticket.getId(), response);
+        sendToTicketTopic(ticket.getId());
 
-        return response;
+
 
 
     }
