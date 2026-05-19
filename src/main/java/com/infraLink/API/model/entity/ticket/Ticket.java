@@ -23,9 +23,11 @@ public class Ticket {
     private String description;
 
     @ManyToOne
+    @JoinColumn(name="client_id")
     private User client;
 
     @ManyToOne
+    @JoinColumn(name="attendant_id")
     private User attendant;
 
     @Enumerated(EnumType.STRING)
