@@ -122,12 +122,11 @@ public class TicketService {
                 ticket.getCreatedAt(),
                 ticket.getTicketStatusEnum()
         );
-
-
-
     }
 
+    public void finishService(TicketAttendRequest request){
 
+    }
 
 
 
