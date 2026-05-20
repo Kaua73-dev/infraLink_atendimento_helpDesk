@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/ticket/create").hasRole("CLIENT")
                         .requestMatchers(HttpMethod.GET, "/ticket").hasAnyRole("ADMIN", "ATTENDANT")
                         .requestMatchers(HttpMethod.POST, "/ticket/attend").hasAnyRole("ADMIN", "ATTENDANT")
+                        .requestMatchers(HttpMethod.POST, "/ticket/attend").hasAnyRole("ADMIN", "ATTENDANT")
+                        .requestMatchers(HttpMethod.PATCH, "/ticket/finish/{ticketId}").hasAnyRole("ADMIN", "ATTENDANT")
 
 
 

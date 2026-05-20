@@ -3,7 +3,6 @@ package com.infraLink.API.service.webSocket;
 
 import com.infraLink.API.auth.AuthVerifyService;
 import com.infraLink.API.dto.request.webSocket.WebSocketSendMessageRequest;
-import com.infraLink.API.dto.response.webSocket.WebSocketSendMessageResponse;
 import com.infraLink.API.exception.ticket.TicketChatWebSocketUnavailableException;
 import com.infraLink.API.exception.ticket.TicketNotFoundException;
 import com.infraLink.API.exception.user.UserNotAuthorizedException;

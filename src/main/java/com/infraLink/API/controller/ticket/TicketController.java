@@ -3,6 +3,7 @@ package com.infraLink.API.controller.ticket;
 
 import com.infraLink.API.dto.request.ticket.TicketRequest;
 import com.infraLink.API.dto.response.ticket.TicketCreateResponse;
+import com.infraLink.API.dto.response.ticket.TicketFinishedResponse;
 import com.infraLink.API.dto.response.ticket.TicketServedResponse;
 import com.infraLink.API.model.entity.queue.Queue;
 import com.infraLink.API.model.factory.implementations.QueueDoubtFactory;
@@ -39,6 +40,11 @@ public class TicketController {
     @PostMapping("/attend")
     public TicketServedResponse attendTicket(){
         return ticketService.attendTicket();
+    }
+
+    @PatchMapping("/finish/{ticketId}")
+    public TicketFinishedResponse finishTicket(@PathVariable Integer ticketId){
+        return ticketService.finishService(ticketId);
     }
 
 

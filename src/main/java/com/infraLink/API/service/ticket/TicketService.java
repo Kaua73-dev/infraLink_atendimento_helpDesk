@@ -102,14 +102,12 @@ public class TicketService {
 
     }
 
-
     public List<TicketCreateResponse> getAllTickets(){
         return ticketRepository.findAll()
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
-
 
     public TicketServedResponse attendTicket(){
         User attendant = authVerifyService.getAuthenticate();
@@ -136,10 +134,10 @@ public class TicketService {
         );
     }
 
-    public TicketFinishedResponse finishService(TicketAttendRequest request){
+    public TicketFinishedResponse finishService(Integer ticketId){
         User user = authVerifyService.getAuthenticate();
 
-        Ticket ticket = ticketRepository.findById(request.ticketId())
+        Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(TicketNotFoundException::new);
 
         if(!ticket.getAttendant().equals(user)){
@@ -153,6 +151,7 @@ public class TicketService {
         ticket.setTicketStatusEnum(TicketStatusEnum.FINISHED);
         ticket.setFinishedAt(LocalDateTime.now());
         ticketRepository.save(ticket);
+
 
         messagingTemplate.convertAndSend(
                 "/topic/ticket/" + ticket.getId(),

@@ -8,10 +8,6 @@ import com.infraLink.API.model.repository.queue.QueueRepository;
 import com.infraLink.API.model.roles.ticket.TicketStatusEnum;
 import org.springframework.stereotype.Service;
 
-
-import java.util.Comparator;
-import java.util.PriorityQueue;
-
 @Service
 public class QueueService {
 
