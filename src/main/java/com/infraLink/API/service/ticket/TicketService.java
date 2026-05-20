@@ -103,14 +103,14 @@ public class TicketService {
     }
 
     public List<TicketCreateResponse> getAllTickets(){
-
-
         return ticketRepository.
                 findByTicketStatusEnumNot(TicketStatusEnum.FINISHED)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
+
+
 
     @Transactional
     public TicketServedResponse attendTicket(){
