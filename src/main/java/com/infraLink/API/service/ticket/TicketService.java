@@ -10,10 +10,7 @@ import com.infraLink.API.dto.response.ticket.TicketServedResponse;
 import com.infraLink.API.dto.response.user.UserClientAndAttendTicketResponse;
 import com.infraLink.API.dto.response.user.UserClientTicketResponse;
 import com.infraLink.API.dto.response.webSocket.ChatClosedResponse;
-import com.infraLink.API.exception.ticket.TicketAlreadyExistException;
-import com.infraLink.API.exception.ticket.TicketChatWebSocketUnavailableException;
-import com.infraLink.API.exception.ticket.TicketNotFoundException;
-import com.infraLink.API.exception.ticket.TicketUnavailableException;
+import com.infraLink.API.exception.ticket.*;
 import com.infraLink.API.exception.user.UserNotAuthorizedException;
 import com.infraLink.API.exception.user.UserNotFoundException;
 import com.infraLink.API.model.entity.queue.Queue;
@@ -29,6 +26,7 @@ import com.infraLink.API.model.roles.ticket.TicketStatusEnum;
 import com.infraLink.API.service.queue.QueueService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,6 +45,7 @@ public class TicketService {
     private final SimpMessagingTemplate messagingTemplate;
 
 
+
     public TicketService(TicketRepository ticketRepository, UserRepository userRepository, QueueService queueService, QueueDoubtFactory queueDoubtFactory, QueueInstabilityFactory queueInstabilityFactory, QueueNoServiceFactory queueNoServiceFactory, AuthVerifyService authVerifyService, QueueRepository queueRepository, SimpMessagingTemplate messagingTemplate) {
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
@@ -63,7 +62,8 @@ public class TicketService {
         return new TicketCreateResponse(
                 new UserClientTicketResponse(ticket.getClient().getName()),
                 ticket.getCreatedAt(),
-                ticket.getTicketStatusEnum()
+                ticket.getTicketStatusEnum(),
+                ticket.getId()
         );
     }
 
@@ -103,12 +103,16 @@ public class TicketService {
     }
 
     public List<TicketCreateResponse> getAllTickets(){
-        return ticketRepository.findAll()
+
+
+        return ticketRepository.
+                findByTicketStatusEnumNot(TicketStatusEnum.FINISHED)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
+    @Transactional
     public TicketServedResponse attendTicket(){
         User attendant = authVerifyService.getAuthenticate();
 
@@ -140,7 +144,8 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(TicketNotFoundException::new);
 
-        if(!ticket.getAttendant().equals(user)){
+
+        if(!ticket.getAttendant().getId().equals(user.getId())){
             throw new UserNotAuthorizedException();
         }
 
